@@ -8,7 +8,7 @@
 2. Set the URL of the browser source to: `https://www.luna-jia.com/clock.html`
 
    
-## 🍅 Tomato Timer Widget for OBS:
+## 🍅 Pomodoro Timer Widget:
 This is a tomato timer widget that you can use in your OBS (Open Broadcaster Software) scenes to display a countdown timer for study sessions and breaks.
 
 ![Screenshot 2024-05-03 at 6 48 24 PM](https://github.com/Luna-Jia/OBS-Widget/assets/73403516/c1760d4b-62d3-410a-9398-4a91c8c1c48a)
