@@ -5,7 +5,7 @@
 ### Usage:
 
 1. Add a new browser source to your OBS scene.
-2. Set the URL of the browser source to: `https://www.luna-jia.com/clock.html`
+2. Set the URL of the browser source to the url for the local clock.html file (double click clock.html to open the file in a browser; copy the url)
 
    
 ## 🍅 Pomodoro Timer Widget:
