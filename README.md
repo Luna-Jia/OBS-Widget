@@ -5,7 +5,7 @@
 ### Usage:
 
 1. Add a new browser source to your OBS scene.
-2. Set the URL of the browser source to the url for the local clock.html file (double click clock.html to open the file in a browser; copy the url). For example: ```file:///Users/lunajia/Desktop/code/OBS-Widget/clock.html```
+2. Set the URL of the browser source to: `https://www.luna-jia.com/clock.html`
 
    
 ## 🍅 Pomodoro Timer Widget:
@@ -16,7 +16,7 @@ This is a tomato timer widget that you can use in your OBS (Open Broadcaster Sof
 ### Usage:
 
 1. Add a new browser source to your OBS scene.
-2. Set the URL of the browser source to the url for the local tomato-timer.html file (double click tomato-timer.html to open the file in a browser; copy the url). For example: ```file:///Users/lunajia/Desktop/code/OBS-Widget/tomato-timer.html?duration=50&sessions=8&break=10```
+2. Set the URL of the browser source to: `https://www.luna-jia.com/tomato-timer.html?duration=50&sessions=4&break=10`
 3. Customize the timer settings by editing query parameters to the URL:
    - `duration`: The duration of each study session in minutes 
    - `sessions`: The total number of study sessions 
