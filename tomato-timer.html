@@ -90,7 +90,7 @@
         function updateProgress() {
             const totalSeconds = state.isBreak ? state.breakDuration * 60 : state.workDuration * 60;
             const percentage = Math.min((totalSeconds - state.remainingSeconds) / totalSeconds, 1);
-            const progressColor = state.isBreak ? '#43EBF7' : '#90EE90';
+            const progressColor = state.isBreak ? '#64c5f5' : '#90EE90';
             
             requestAnimationFrame(() => {
                 elements.timer.style.setProperty('--progress-color', 
