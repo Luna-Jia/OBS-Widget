@@ -39,30 +39,41 @@
       -webkit-mask-mode: alpha;
       z-index: -1;
     }
-    #countdown { font-size: 53px; padding-top: 10%; }
-    #elapsed { font-size: 22px; padding-top: 3%; }
-    #session { font-size: 22px; padding-top: 3%; }
+    #countdown { font-size: 53px; }
+    #elapsed { font-size: 22px; padding-top: 2%; }
+    #session { font-size: 22px; padding-top: 2%; }
     #message {
-      position: absolute;
-      top: -30px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 18px;
+      font-size: 20px;
+      background: rgba(0,0,0,0.3);
+      font-family: "Trebuchet MS", sans-serif;
       color: white;
       text-shadow: 1px 1px 2px black;
+      padding: 4px 12px;
+      border-radius: 15px;
+      margin-bottom: 6px;
+      margin-top: 17px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-align: center;
+      max-width: 140px;
+      word-wrap: break-word;
+      opacity: 1;
+    }
+    #message.visible {
+      opacity: 1;
     }
     .paused { opacity: 0.7; }
   </style>
 </head>
 <body>
     <div id="timer">
+      <div id="message"></div>
       <div id="countdown">25:00</div>
       <div id="elapsed">00:00:00</div>
       <div id="session">0 of 3</div>
     </div>
-    <div id="message"></div>
     <audio id="breakSound" src="sound_break.mp3"></audio>
-    <audio id="workSound" src="sound_work.mp3"></audio>
+    <audio id="workSound" src="sound_study.mp3"></audio>
   
     <script>
         const elements = {
