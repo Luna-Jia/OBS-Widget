@@ -19,7 +19,7 @@
       justify-content: center;
       align-items: center;
       font-family: "Gill Sans", sans-serif;
-      color: white;letter-spacing: normal;
+      color: white;
       text-shadow: 1px 1px 2px black;
       cursor: pointer;
       position: relative;
@@ -38,21 +38,10 @@
       -webkit-mask: radial-gradient(transparent 65%, #000 66%);
       -webkit-mask-mode: alpha;
       z-index: -1;
-      transition: background 1s linear;
     }
-    #countdown {
-      font-size: 53px;
-      padding-top: 10%;
-      
-    }
-    #elapsed {
-      font-size: 22px;
-      padding-top: 3%;
-    }
-    #session {
-      font-size: 22px;
-      padding-top: 3%;
-    }
+    #countdown { font-size: 53px; padding-top: 10%; }
+    #elapsed { font-size: 22px; padding-top: 3%; }
+    #session { font-size: 22px; padding-top: 3%; }
     #message {
       position: absolute;
       top: -30px;
@@ -62,6 +51,7 @@
       color: white;
       text-shadow: 1px 1px 2px black;
     }
+    .paused { opacity: 0.7; }
   </style>
 </head>
 <body>
@@ -71,102 +61,138 @@
       <div id="session">0 of 3</div>
     </div>
     <div id="message"></div>
+    <audio id="breakSound" src="sound_break.mp3"></audio>
+    <audio id="workSound" src="sound_work.mp3"></audio>
   
     <script>
-        const countdownDisplay = document.getElementById('countdown');
-        const elapsedDisplay = document.getElementById('elapsed');
-        const sessionDisplay = document.getElementById('session');
-        const timerCircle = document.getElementById('timer');
-        let countdown;
-        let remainingSeconds;
-        let elapsedSeconds = 0;
-        let currentSession = 1;
-        let goalSessions;
-    
-        function startTimer() {
-          countdown = setInterval(updateTimer, 1000);
+        const elements = {
+            countdown: document.getElementById('countdown'),
+            elapsed: document.getElementById('elapsed'),
+            session: document.getElementById('session'),
+            timer: document.getElementById('timer'),
+            message: document.getElementById('message'),
+            breakSound: document.getElementById('breakSound'),
+            workSound: document.getElementById('workSound')
+        };
+
+        const state = {
+            countdown: null,
+            remainingSeconds: 0,
+            elapsedSeconds: 0,
+            currentSession: 1,
+            goalSessions: 0,
+            isBreak: false,
+            isPaused: false,
+            breakDuration: 0,
+            workDuration: 0
+        };
+
+        function updateProgress() {
+            const totalSeconds = state.isBreak ? state.breakDuration * 60 : state.workDuration * 60;
+            const percentage = Math.min((totalSeconds - state.remainingSeconds) / totalSeconds, 1);
+            const progressColor = state.isBreak ? '#43EBF7' : '#90EE90';
+            
+            requestAnimationFrame(() => {
+                elements.timer.style.setProperty('--progress-color', 
+                    `conic-gradient(${progressColor} ${percentage * 100}%, #808080 ${percentage * 100}%)`);
+            });
         }
-    
-        function stopTimer() {
-          clearInterval(countdown);
+
+        function updateDisplay() {
+            const minutes = Math.floor(state.remainingSeconds / 60);
+            const seconds = state.remainingSeconds % 60;
+            const hours = Math.floor(state.elapsedSeconds / 3600);
+            const elapsedMinutes = Math.floor((state.elapsedSeconds % 3600) / 60);
+            const elapsedSeconds = state.elapsedSeconds % 60;
+
+            elements.countdown.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            elements.elapsed.textContent = `${hours.toString().padStart(2, '0')}:${elapsedMinutes.toString().padStart(2, '0')}:${elapsedSeconds.toString().padStart(2, '0')}`;
+            elements.session.textContent = `${state.currentSession} of ${state.goalSessions}`;
+            updateProgress();
         }
-    
-        function updateTimer() {
-          remainingSeconds--;
-          elapsedSeconds++;
-          displayTime();
-          updateCircleColor();
-    
-          if (remainingSeconds < 0) {
-            stopTimer();
-            countdownDisplay.textContent = '!';
-            currentSession++;
-            if (currentSession <= goalSessions) {
-              setTimeout(resetTimer, 3000); // Start the next session after a 3-second delay
+
+        function togglePause() {
+            state.isPaused = !state.isPaused;
+            elements.timer.classList.toggle('paused', state.isPaused);
+            
+            if (state.isPaused) {
+                clearInterval(state.countdown);
+            } else {
+                startTimer();
             }
-          }
         }
-    
-        function resetTimer() {
-          stopTimer();
-          remainingSeconds = getCountdownDuration();
-          elapsedSeconds = 0;
-          displayTime();
-          updateCircleColor();
-          updateSessionDisplay();
-          startTimer();
+
+        function switchMode() {
+            state.isBreak = !state.isBreak;
+            state.remainingSeconds = (state.isBreak ? state.breakDuration : state.workDuration) * 60;
+            
+            elements.message.textContent = state.isBreak ? "Break Time!" : "Work Time!";
+            try {
+                (state.isBreak ? elements.breakSound : elements.workSound).play();
+            } catch (error) {
+                console.warn('Sound playback failed:', error);
+            }
+            
+            updateDisplay();
         }
-    
-        function displayTime() {
-          const remainingMinutes = Math.floor(remainingSeconds / 60);
-          const remainingSecondsDisplay = remainingSeconds % 60;
-          countdownDisplay.textContent = `${remainingMinutes.toString().padStart(2, '0')}:${remainingSecondsDisplay.toString().padStart(2, '0')}`;
-    
-          const elapsedHours = Math.floor(elapsedSeconds / 3600);
-          const elapsedMinutes = Math.floor((elapsedSeconds % 3600) / 60);
-          const elapsedSecondsDisplay = elapsedSeconds % 60;
-          elapsedDisplay.textContent = `${elapsedHours.toString().padStart(2, '0')}:${elapsedMinutes.toString().padStart(2, '0')}:${elapsedSecondsDisplay.toString().padStart(2, '0')}`;
+
+        function updateTimer() {
+            if (state.remainingSeconds <= 0) {
+                clearInterval(state.countdown);
+                elements.countdown.textContent = '!';
+                
+                if (state.isBreak) {
+                    state.currentSession++;
+                }
+                
+                if (state.currentSession <= state.goalSessions) {
+                    setTimeout(() => {
+                        switchMode();
+                        startTimer();
+                    }, 3000);
+                } else {
+                    elements.message.textContent = "Sessions Complete!";
+                }
+                return;
+            }
+            
+            state.remainingSeconds--;
+            state.elapsedSeconds++;
+            updateDisplay();
         }
-    
-        function updateCircleColor() {
-          const totalSeconds = getCountdownDuration();
-          const percentage = (totalSeconds - remainingSeconds) / totalSeconds;
-          const grayPercentage = (1 - percentage) * 100;
-          const greenPercentage = percentage * 100;
-    
-          if (remainingSeconds >= 0) {
-            timerCircle.style.setProperty('--progress-color', `conic-gradient(#90EE90 ${greenPercentage}%, #808080 ${greenPercentage}% ${grayPercentage}%)`);
-          } else {
-            timerCircle.style.setProperty('--progress-color', 'conic-gradient(red 0% 100%)');
-          }
+
+        function startTimer() {
+            if (!state.isPaused) {
+                state.countdown = setInterval(updateTimer, 1000);
+            }
         }
-    
-        function getCountdownDuration() {
-          const urlParams = new URLSearchParams(window.location.search);
-          const duration = parseInt(urlParams.get('duration'), 10);
-          return duration > 0 ? duration * 60 : 1500; // Default to 25 minutes if duration is not provided or invalid
+
+        function initializeTimer() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                state.workDuration = Math.max(1, parseInt(params.get('duration')) || 25);
+                state.breakDuration = Math.max(1, parseInt(params.get('break')) || 5);
+                state.goalSessions = Math.max(1, parseInt(params.get('sessions')) || 5);
+                state.remainingSeconds = state.workDuration * 60;
+                
+                elements.message.textContent = "Work Time!";
+                updateDisplay();
+                startTimer();
+            } catch (error) {
+                console.error('Initialization failed:', error);
+                elements.message.textContent = "Error: Invalid parameters";
+            }
         }
-    
-        function getGoalSessions() {
-          const urlParams = new URLSearchParams(window.location.search);
-          const sessions = parseInt(urlParams.get('sessions'), 10);
-          return sessions > 0 ? sessions : 5; // Default to 5 sessions if not provided or invalid
-        }
-    
-        function updateSessionDisplay() {
-          sessionDisplay.textContent = `${currentSession} of ${goalSessions}`;
-        }
-    
-        document.addEventListener('DOMContentLoaded', () => {
-          remainingSeconds = getCountdownDuration();
-          goalSessions = getGoalSessions();
-          displayTime();
-          updateCircleColor();
-          updateSessionDisplay();
-          startTimer();
+
+        elements.timer.addEventListener('click', togglePause);
+        elements.timer.addEventListener('dblclick', (e) => {
+            e.preventDefault();
+            if (confirm('Reset timer?')) {
+                location.reload();
+            }
         });
-    
-        document.addEventListener('dblclick', resetTimer);
-      </script>
-  </body>
+
+        document.addEventListener('DOMContentLoaded', initializeTimer);
+    </script>
+</body>
 </html>
